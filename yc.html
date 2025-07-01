@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F5 SEJ Bab 4: Sistem Persekutuan - Output Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .tabs {
+            display: flex;
+            background: #34495e;
+        }
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .tab:hover {
+            background: #2c3e50;
+        }
+        .tab.active {
+            background: #3498db;
+        }
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .question {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #219a52;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+        .hidden {
+            display: none;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .save-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .save-btn {
+            background-color: #2196F3;
+            margin: 5px;
+        }
+        .save-btn:hover {
+            background-color: #0b7dda;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+        .form-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .question-text {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        .option-label {
+            display: block;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .option-label:hover {
+            background-color: #f0f0f0;
+        }
+        .option-label input {
+            width: auto;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📚 F5 SEJ Bab 4 Output Test</h1>
+        <p>Sistem Persekutuan</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="showTab('quiz')">做测验</div>
+        <div class="tab" onclick="showTab('history')">查看记录</div>
+    </div>
+
+    <div id="quiz" class="tab-content active">
+        <div class="form-section">
+            <form id="quizForm">
+                <label>学生姓名 / Nama Pelajar:</label><br>
+                <input type="text" id="name" required placeholder="请输入您的姓名"><br>
+
+                <label>年级 / Tingkatan:</label><br>
+                <select id="form" required>
+                    <option value="">选择年级</option>
+                    <option value="F1">F1 (Form 1)</option>
+                    <option value="F2">F2 (Form 2)</option>
+                    <option value="F3">F3 (Form 3)</option>
+                    <option value="F4">F4 (Form 4)</option>
+                    <option value="F5">F5 (Form 5)</option>
+                </select><br>
+            </form>
+        </div>
+
+        <div id="questions"></div>
+
+        <div class="save-buttons">
+            <button type="button" onclick="submitQuiz()">提交测验 📝</button>
+            <button type="button" class="save-btn" onclick="saveProgress()">保存进度 💾</button>
+            <button type="button" class="save-btn" onclick="loadProgress()">加载进度 📂</button>
+        </div>
+
+        <div id="result" class="result hidden"></div>
+    </div>
+
+    <div id="history" class="tab-content">
+        <h3>📊 你的测验记录</h3>
+        <div id="historyList"></div>
+    </div>
+</div>
+
+<script>
+const questions = [
+    {
+        q: "Apakah maksud sistem Persekutuan?",
+        options: ["A. Penyatuan beberapa buah negeri dan membentuk sebuah negara bersekutu", "B. Penggabungan semua kuasa di bawah kerajaan pusat", "C. Pemerintahan oleh satu negeri sahaja", "D. Sistem pemerintahan beraja mutlak"],
+        answer: "A. Penyatuan beberapa buah negeri dan membentuk sebuah negara bersekutu",
+        explain: "Sistem Persekutuan bermaksud penyatuan beberapa buah negeri untuk membentuk sebuah negara bersekutu, termasuklah wujudnya Kerajaan Persekutuan dan Kerajaan Negeri.<br><strong>华语翻译：</strong>联邦制度意指几个州属联合起来形成一个联邦国家，包括联邦政府和州政府的存在。",
+        encourage: "太棒了！你掌握了联邦制度的基本概念！"
+    },
+    {
+        q: "Persekutuan 1896 dikuatkuasakan di negeri-negeri manakah?",
+        options: ["A. Semua negeri Melayu", "B. Negeri-Negeri Melayu Bersekutu (NNMB)", "C. Negeri-Negeri Selat sahaja", "D. Sabah dan Sarawak"],
+        answer: "B. Negeri-Negeri Melayu Bersekutu (NNMB)",
+        explain: "Persekutuan 1896 melibatkan empat negeri NNMB iaitu Perak, Selangor, Negeri Sembilan dan Pahang.<br><strong>华语翻译：</strong>1896年联邦涉及四个马来联邦州属即霹雳、雪兰莪、森美兰和彭亨。",
+        encourage: "很好！你记住了联邦制度的历史发展！"
+    },
+    {
+        q: "Siapakah yang membuat keputusan pentadbiran bagi Persekutuan 1896?",
+        options: ["A. Gabenor British", "B. Residen Jeneral", "C. Raja-raja Melayu", "D. Yang di-Pertuan Agong"],
+        answer: "B. Residen Jeneral",
+        explain: "Keputusan pentadbiran Persekutuan 1896 dibuat oleh Residen Jeneral dengan Kuala Lumpur sebagai pusat pentadbiran.<br><strong>华语翻译：</strong>1896年联邦的行政决策由参政司制定，吉隆坡为行政中心。",
+        encourage: "棒极了！你了解当时的权力结构！"
+    },
+    {
+        q: "Bilakah jawatan Yang di-Pertuan Agong diperkenalkan?",
+        options: ["A. Persekutuan Malaysia 1963", "B. Persekutuan Tanah Melayu 1957", "C. Persekutuan Tanah Melayu 1948", "D. Persekutuan 1896"],
+        answer: "B. Persekutuan Tanah Melayu 1957",
+        explain: "Jawatan Yang di-Pertuan Agong diwujudkan semasa Persekutuan Tanah Melayu 1957 sebagai Ketua Persekutuan.<br><strong>华语翻译：</strong>最高元首职位是在1957年马来亚联邦时期设立，作为联邦元首。",
+        encourage: "非常好！你清楚独立后的政治发展！"
+    },
+    {
+        q: "Antara berikut, perkara manakah terletak di bawah Senarai Persekutuan?<br><br>I. Pertahanan<br>II. Pendidikan<br>III. Hal Ehwal Tanah<br>IV. Undang-undang Islam",
+        options: ["A. I dan II", "B. I dan IV", "C. II dan III", "D. III dan IV"],
+        answer: "A. I dan II",
+        explain: "Pertahanan dan Pendidikan terletak di bawah Senarai Persekutuan. Tanah dan Undang-undang Islam terletak di bawah Senarai Negeri.<br><strong>华语翻译：</strong>国防和教育属于联邦清单。土地和伊斯兰法律属于州清单。",
+        encourage: "优秀！你掌握了权力分配的概念！"
+    },
+    {
+        q: "Apakah perkara yang terletak dalam Senarai Negeri?",
+        options: ["A. Kewarganegaraan", "B. Tanah", "C. Pertahanan", "D. Pelajaran"],
+        answer: "B. Tanah",
+        explain: "Tanah adalah antara perkara yang terletak di bawah kuasa Kerajaan Negeri dalam Senarai Negeri.<br><strong>华语翻译：</strong>土地是属于州政府权力范围内的事务，列在州清单中。",
+        encourage: "很好！你理解州政府的权限！"
+    },
+    {
+        q: "Perkara manakah yang terkandung dalam Senarai Bersama?",
+        options: ["A. Pertanian dan perhutanan", "B. Perubatan dan kesihatan", "C. Kerajaan tempatan", "D. Kebajikan awam"],
+        answer: "D. Kebajikan awam",
+        explain: "Kebajikan awam terletak dalam Senarai Bersama di mana Parlimen dan DUN boleh menggubal undang-undang untuk perkara yang sama.<br><strong>华语翻译：</strong>公共福利属于共同清单，国会和州议会都可以为同样的事务制定法律。",
+        encourage: "了不起！你懂得共同权力的概念！"
+    },
+    {
+        q: "Kerajaan Tempatan diletakkan di bawah kuasa siapa?",
+        options: ["A. Kerajaan Persekutuan", "B. Kerajaan Negeri", "C. Parlimen", "D. Yang di-Pertuan Agong"],
+        answer: "B. Kerajaan Negeri",
+        explain: "Kerajaan Tempatan diletakkan di bawah kuasa Kerajaan Negeri sebagai kerajaan peringkat ketiga.<br><strong>华语翻译：</strong>地方政府被置于州政府权力之下，作为第三级政府。",
+        encourage: "太棒了！你明白政府的层级结构！"
+    },
+    {
+        q: "Mengapakah peruntukan kuasa yang lebih besar diberikan kepada Kerajaan Persekutuan?<br><br>I. Menjamin kestabilan negara<br>II. Memastikan kemajuan negara tercapai<br>III. Mengukuhkan perpaduan<br>IV. Membina konsep negara bangsa",
+        options: ["A. I dan II", "B. I dan IV", "C. II dan III", "D. III dan IV"],
+        answer: "A. I dan II",
+        explain: "Peruntukan kuasa lebih besar diberikan kepada Kerajaan Persekutuan untuk menjamin kestabilan dan kemajuan negara.<br><strong>华语翻译：</strong>给予联邦政府更大权力是为了保证国家的稳定和进步。",
+        encourage: "优秀！你理解权力分配的原理！"
+    },
+    {
+        q: "Apakah yang akan berlaku jika undang-undang Negeri bertentangan dengan undang-undang Persekutuan?",
+        options: ["A. Undang-undang Persekutuan akan mengatasi undang-undang Negeri", "B. Undang-undang Negeri mengatasi undang-undang Persekutuan", "C. Undang-undang Persekutuan dimansuhkan", "D. Undang-undang Negeri digunakan"],
+        answer: "A. Undang-undang Persekutuan akan mengatasi undang-undang Negeri",
+        explain: "Mengikut Perkara 75 Perlembagaan Persekutuan, undang-undang Persekutuan hendaklah mengatasi undang-undang Negeri jika berlaku pertentangan.<br><strong>华语翻译：</strong>根据联邦宪法第75条，如果出现冲突，联邦法律应该优于州法律。",
+        encourage: "非常好！你掌握了宪法至上的原则！"
+    },
+    {
+        q: "Mengapakah peruntukan tambahan diberikan kepada Sarawak dan Sabah?",
+        options: ["A. Mengelakkan penggubalan undang-undang baharu", "B. Menyesuaikan kemasukan negeri berkenaan ke dalam Malaysia", "C. Memudahkan pengurusan kawasan tempatan", "D. Membentuk kerajaan pusat yang kuat"],
+        answer: "B. Menyesuaikan kemasukan negeri berkenaan ke dalam Malaysia",
+        explain: "Peruntukan tambahan diberikan untuk menyesuaikan kemasukan Sabah dan Sarawak ke dalam Malaysia pada 1963.<br><strong>华语翻译：</strong>额外条款是为了适应沙巴和砂拉越在1963年加入马来西亚而提供的。",
+        encourage: "很棒！你了解马来西亚成立的历史！"
+    },
+    {
+        q: "Antara berikut, manakah majlis yang termaktub dalam Perlembagaan Persekutuan?",
+        options: ["A. Majlis Keselamatan Negara", "B. Majlis Kewangan Negara", "C. Majlis Air Negara", "D. Majlis Perumahan Negara"],
+        answer: "B. Majlis Kewangan Negara",
+        explain: "Majlis Kewangan Negara adalah antara majlis yang termaktub dalam Perlembagaan Persekutuan untuk menyelaraskan pentadbiran.<br><strong>华语翻译：</strong>国家财政理事会是宪法中规定的理事会之一，用于协调行政工作。",
+        encourage: "太好了！你掌握了政府协调机制！"
+    },
+    {
+        q: "Apakah peranan Majlis Tanah Negara?",
+        options: ["A. Mentadbir hal ehwal kewangan", "B. Membentuk dasar dan mengawal penggunaan tanah", "C. Menyelaras pembangunan Kerajaan Tempatan", "D. Menjaga keselamatan negara"],
+        answer: "B. Membentuk dasar dan mengawal penggunaan tanah",
+        explain: "Majlis Tanah Negara berperanan membentuk dasar dan mengawal penggunaan tanah untuk pertanian, perlombongan dan perhutanan.<br><strong>华语翻译：</strong>国家土地理事会负责制定政策和控制土地用于农业、采矿和林业等用途。",
+        encourage: "优秀！你理解专门理事会的功能！"
+    },
+    {
+        q: "Apakah kebaikan pelaksanaan pembahagian kuasa antara Kerajaan Persekutuan dan Kerajaan Negeri?",
+        options: ["A. Menjamin keselamatan perairan negara", "B. Mendapat pengiktirafan dari negara luar", "C. Menyeragamkan undang-undang negara", "D. Mengelakkan permasalahan antara kerajaan"],
+        answer: "D. Mengelakkan permasalahan antara kerajaan",
+        explain: "Pembahagian kuasa bertujuan melicinkan perjalanan sistem Persekutuan dan mengelakkan permasalahan antara kedua-dua peringkat kerajaan.<br><strong>华语翻译：</strong>权力分配旨在顺利运行联邦制度，避免两级政府之间的问题。",
+        encourage: "了不起！你明白权力分配的好处！"
+    },
+    {
+        q: "Kerajaan Persekutuan dan Kerajaan Negeri berusaha untuk membolehkan golongan pertengahan memiliki rumah kediaman. Bagaimanakah kedua-dua kerajaan mencapai matlamat tersebut?",
+        options: ["A. Melarang warga asing membeli rumah di Malaysia", "B. Menyediakan pinjaman perumahan tanpa faedah", "C. Menyekat pembinaan rumah-rumah mewah", "D. Memperbanyakkan pembinaan rumah mampu milik"],
+        answer: "D. Memperbanyakkan pembinaan rumah mampu milik",
+        explain: "Kerajaan Persekutuan dan Kerajaan Negeri bekerjasama memperbanyakkan pembinaan rumah mampu milik untuk membolehkan golongan pertengahan memiliki rumah kediaman.<br><strong>华语翻译：</strong>联邦政府和州政府合作增加可负担房屋的建设，让中等收入群体能够拥有住房。",
+        encourage: "很好！你理解政府合作提供房屋的政策！"
+    },
+    {
+        q: "Antara berikut, yang manakah bidang kuasa Kerajaan Persekutuan?<br><br>I. Kebudayaan dan sukan<br>II. Kebajikan awam<br>III. Hal ehwal luar negeri<br>IV. Kewarganegaraan",
+        options: ["A. I dan II", "B. I dan IV", "C. II dan III", "D. III dan IV"],
+        answer: "D. III dan IV",
+        explain: "Hal ehwal luar negeri dan Kewarganegaraan terletak di bawah bidang kuasa Kerajaan Persekutuan dalam Senarai Persekutuan.<br><strong>华语翻译：</strong>外交事务和公民权属于联邦清单中联邦政府的权力范围。",
+        encourage: "太棒了！你区分联邦和州权力很准确！"
+    },
+    {
+        q: "Apakah peranan Kerajaan Tempatan?<br><br>I. Menyenggara jalan raya<br>II. Menjaga kesihatan awam<br>III. Mengawal kegiatan perhutanan<br>IV. Merancang pembangunan luar bandar",
+        options: ["A. I dan II", "B. I dan IV", "C. II dan III", "D. III dan IV"],
+        answer: "A. I dan II",
+        explain: "Kerajaan Tempatan berperanan menyenggara jalan raya dan menjaga kesihatan awam sebagai perkhidmatan kepada penduduk setempat.<br><strong>华语翻译：</strong>地方政府负责维护道路和照顾公共卫生，为当地居民提供服务。",
+        encourage: "优秀！你了解地方政府的职责！"
+    },
+    {
+        q: "Apakah strategi yang berjaya mengekalkan keamanan dan keselamatan di bahagian tengah Sarawak?",
+        options: ["A. ESSCOM", "B. SALCRA", "C. PRIMA", "D. RASCOM"],
+        answer: "D. RASCOM",
+        explain: "RASCOM (Regional Security Command) adalah strategi keselamatan yang berjaya mengekalkan keamanan dan keselamatan di bahagian tengah Sarawak.<br><strong>华语翻译：</strong>RASCOM（区域安全指挥部）是成功维护砂拉越中部地区和平与安全的安全策略。",
+        encourage: "太棒了！你掌握了砂拉越的安全策略！"
+    },
+    {
+        q: "Apakah tujuan pembahagian kuasa dalam Perlembagaan Persekutuan?",
+        options: ["A. Menjaga kebajikan rakyat", "B. Mengukuhkan institusi beraja", "C. Melicinkan sistem pentadbiran", "D. Memantapkan pertahanan negara"],
+        answer: "C. Melicinkan sistem pentadbiran",
+        explain: "Pembahagian kuasa bertujuan melicinkan perjalanan sistem Persekutuan serta mengelakkan permasalahan antara kedua-dua peringkat kerajaan.<br><strong>华语翻译：</strong>权力分配旨在顺利运行联邦制度以及避免两级政府之间的问题。",
+        encourage: "非常好！你理解权力分配的目的！"
+    },
+    {
+        q: "Antara tambahan kepada Senarai Negeri bagi Sarawak dan Sabah termasuklah?",
+        options: ["A. Mahkamah Rayuan", "B. Mahkamah Anak Negeri", "C. Mahkamah Tinggi", "D. Mahkamah Persekutuan"],
+        answer: "B. Mahkamah Anak Negeri",
+        explain: "Mahkamah Anak Negeri adalah antara tambahan kepada Senarai Negeri bagi Sarawak dan Sabah untuk menyesuaikan kemasukan mereka ke dalam Malaysia.<br><strong>华语翻译：</strong>土著法庭是沙巴和砂拉越州清单的额外条款之一，以适应它们加入马来西亚。",
+        encourage: "太好了！你掌握了东马特殊条款！"
+    }
+];
+
+function showTab(tabName) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(tab => tab.classList.remove('active'));
+    
+    // Remove active class from all tabs
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Show selected tab content
+    document.getElementById(tabName).classList.add('active');
+    
+    // Add active class to clicked tab
+    event.target.classList.add('active');
+    
+    // Load history if history tab is selected
+    if (tabName === 'history') {
+        loadHistory();
+    }
+}
+
+function submitQuiz() {
+    const name = document.getElementById('name').value;
+    const form = document.getElementById('form').value;
+    
+    if (!name || !form) {
+        alert("请先填写个人信息！");
+        return;
+    }
+    
+    let score = 0;
+    let unanswered = 0;
+    const results = [];
+    
+    questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        const isCorrect = selected && selected.value === q.answer;
+        
+        if (selected) {
+            if (isCorrect) score++;
+        } else {
+            unanswered++;
+        }
+        
+        results.push({
+            question: q.q,
+            selected: selected ? selected.value : "未作答",
+            correct: q.answer,
+            isCorrect: isCorrect,
+            explain: q.explain,
+            encourage: q.encourage
+        });
+    });
+    
+    // Save the attempt to history
+    saveAttempt(name, form, score, results);
+    
+    // Display results
+    displayResults(name, form, score, results, unanswered);
+}
+
+function displayResults(name, form, score, results, unanswered) {
+    let output = `
+        <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">📊 测验结果</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <p><strong>学生姓名:</strong> ${name}</p>
+                    <p><strong>年级:</strong> ${form}</p>
+                    <p><strong>测验:</strong> F5 SEJ Bab 4: Sistem Persekutuan</p>
+                </div>
+                <div>
+                    <p><strong>得分:</strong> <span class="${score >= 15 ? 'correct' : 'incorrect'}" style="font-size: 1.3rem; font-weight: bold;">${score} / 20 (${Math.round(score/20*100)}%)</span></p>
+                </div>
+            </div>
+            ${unanswered > 0 ? `<p style="color: orange; font-weight: bold;">⚠️ 注意：你有 ${unanswered} 题没有作答</p>` : ''}
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center;">
+                <p style="font-size: 1.1rem; color: #2c3e50; margin: 0;">${getFeedback(score)}</p>
+            </div>
+        </div>
+        <hr style="margin: 30px 0;">
+        <h3 style="color: #2c3e50; margin-bottom: 20px;">📝 详细解答</h3>
+    `;
+    
+    results.forEach((r, index) => {
+        output += `
+            <div class="question" style="border-left: 5px solid ${r.isCorrect ? '#28a745' : '#dc3545'};">
+                <p><strong>第${index + 1}题：${r.isCorrect ? '✅ 正确' : '❌ 错误'}</strong></p>
+                <div class="question-text">${r.question}</div>
+                ${!r.isCorrect ? `<p><strong>你的答案:</strong> <span class="incorrect">${r.selected}</span></p>` : ''}
+                <p><strong>正确答案:</strong> <span class="correct">${r.correct}</span></p>
+                <p><strong>📖 解释:</strong> ${r.explain}</p>
+                <p><strong>💪 鼓励:</strong> ${r.encourage}</p>
+            </div>
+        `;
+    });
+    
+    document.getElementById('result').innerHTML = output;
+    document.getElementById('result').classList.remove('hidden');
+    
+    // Scroll to results
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+function saveAttempt(name, form, score, results) {
+    const attempts = JSON.parse(localStorage.getItem('f5sejbab4QuizAttempts') || '[]');
+    const attempt = {
+        date: new Date().toLocaleString(),
+        name,
+        form,
+        score,
+        results
+    };
+    
+    attempts.unshift(attempt); // Add new attempt at beginning
+    localStorage.setItem('f5sejbab4QuizAttempts', JSON.stringify(attempts));
+}
+
+function getFeedback(score) {
+    if (score === 20) {
+        return "🎉 太厉害啦！全对！你对F5联邦制度的掌握堪称完美，历史学霸就是你！";
+    } else if (score >= 17) {
+        return "⭐ 成绩很不错！你对联邦制度的理解很深刻，只有几个小细节需要注意！";
+    } else if (score >= 14) {
+        return "👍 挺好的！基本概念都掌握了，看看错题解释，巩固一下知识点！";
+    } else if (score >= 10) {
+        return "💪 有进步空间！建议多复习课本内容，特别关注权力分配和政府层级！";
+    } else {
+        return "📚 需要加油！建议重新阅读课本，理解基本概念，不要气馁，历史需要慢慢积累！";
+    }
+}
+
+function loadHistory() {
+    const attempts = JSON.parse(localStorage.getItem('f5sejbab4QuizAttempts') || '[]');
+    const historyList = document.getElementById('historyList');
+    
+    if (attempts.length === 0) {
+        historyList.innerHTML = "<p>你还没有任何测验记录，快去做测验吧！</p>";
+        return;
+    }
+    
+    let html = "";
+    attempts.forEach((attempt, index) => {
+        html += `
+            <div class="question" style="margin-bottom: 20px; padding: 20px; background: white; border-radius: 8px; border-left: 5px solid #4CAF50;">
+                <h3>📊 测验记录 #${index + 1} - ${attempt.date}</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 15px 0;">
+                    <div>
+                        <p><strong>姓名:</strong> ${attempt.name}</p>
+                        <p><strong>年级:</strong> ${attempt.form}</p>
+                    </div>
+                    <div>
+                        <p><strong>得分:</strong> <span style="font-weight: bold; color: ${attempt.score >= 15 ? '#28a745' : '#dc3545'};">${attempt.score} / 20 (${Math.round(attempt.score/20*100)}%)</span></p>
+                        <p><strong>测验:</strong> F5 SEJ Bab 4: Sistem Persekutuan</p>
+                    </div>
+                </div>
+                <button onclick="viewAttemptDetails(${index})" style="background: #17a2b8;">查看详细答案 📖</button>
+                <div id="attemptDetails${index}" style="display: none; margin-top: 20px;">
+                    ${attempt.results.map((r, qIndex) => `
+                        <div style="margin-bottom: 15px; padding: 15px; background: ${r.isCorrect ? '#e6ffe6' : '#ffe6e6'}; border-radius: 8px; border-left: 4px solid ${r.isCorrect ? '#28a745' : '#dc3545'};">
+                            <p><strong>第${qIndex + 1}题：${r.isCorrect ? '✅ 正确' : '❌ 错误'}</strong></p>
+                            <div style="margin: 10px 0; font-size: 0.95rem;">${r.question}</div>
+                            ${!r.isCorrect ? `<p><strong>你的答案:</strong> <span style="color: #dc3545;">${r.selected}</span></p>` : ''}
+                            <p><strong>正确答案:</strong> <span style="color: #28a745; font-weight: bold;">${r.correct}</span></p>
+                            <p><strong>解释:</strong> ${r.explain}</p>
+                            <p><strong>鼓励:</strong> ${r.encourage}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    });
+    
+    historyList.innerHTML = html;
+}
+
+function viewAttemptDetails(index) {
+    const detailsDiv = document.getElementById(`attemptDetails${index}`);
+    if (detailsDiv.style.display === 'none') {
+        detailsDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'none';
+    }
+}
+
+function saveProgress() {
+    const name = document.getElementById('name').value;
+    const form = document.getElementById('form').value;
+    
+    if (!name || !form) {
+        alert("请先填写个人信息！");
+        return;
+    }
+    
+    const progress = {
+        name,
+        form,
+        answers: []
+    };
+    
+    questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        progress.answers.push(selected ? selected.value : null);
+    });
+    
+    localStorage.setItem('f5sejbab4QuizProgress', JSON.stringify(progress));
+    alert("✅ 进度已保存！你可以稍后回来继续完成测验。");
+}
+
+function loadProgress() {
+    const progress = JSON.parse(localStorage.getItem('f5sejbab4QuizProgress'));
+    
+    if (!progress) {
+        alert("❌ 没有找到保存的进度！");
+        return;
+    }
+    
+    document.getElementById('name').value = progress.name;
+    document.getElementById('form').value = progress.form;
+    
+    progress.answers.forEach((answer, index) => {
+        if (answer) {
+            const radio = document.querySelector(`input[name="q${index}"][value="${answer}"]`);
+            if (radio) radio.checked = true;
+        }
+    });
+    
+    alert("✅ 进度已加载！你可以继续完成测验。");
+}
+
+window.onload = function() {
+    const qDiv = document.getElementById('questions');
+    questions.forEach((q, index) => {
+        const div = document.createElement('div');
+        div.className = "question";
+        div.innerHTML = `
+            <div class="question-text"><strong>题目 ${index + 1}.</strong> ${q.q}</div>
+            <div style="margin-top: 10px;">
+                ${q.options.map(opt => `
+                    <label class="option-label">
+                        <input type="radio" name="q${index}" value="${opt}"> ${opt}
+                    </label>
+                `).join('')}
+            </div>
+        `;
+        qDiv.appendChild(div);
+    });
+    
+    // Check if there's saved progress
+    if (localStorage.getItem('f5sejbab4QuizProgress')) {
+        if (confirm("🔍 检测到有保存的进度，是否加载？")) {
+            loadProgress();
+        }
+    }
+}
+</script>
+
+</body>
+</html>
